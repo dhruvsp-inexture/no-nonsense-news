@@ -8,7 +8,13 @@ from run import app
 
 
 def change_date_format(raw_date):
-    """function for change string into datetime object"""
+    """function for change string into datetime object
+
+    Parameters
+    ----------
+    raw_date: str
+        raw date is passed in the form of string which will be then converted to date object and returned
+    """
     date_list = raw_date.split()
     date_str = f"{date_list[2]}/{date_list[0]}/{date_list[1][:-1]} {date_list[3]} {date_list[4]}"
     date_obj = datetime.strptime(date_str, '%Y/%B/%d %I:%M:%S %p')
@@ -16,7 +22,13 @@ def change_date_format(raw_date):
 
 
 def check_existing_news(news_data):
-    """function for checking if the data exists or not in the database"""
+    """function for checking if the data exists or not in the database
+
+    Parameters
+    ----------
+    news_data: object
+        news_data is the object which is used to check whether the news exists in the table or not
+    """
     with app.app_context():
         news_obj = News.query.filter_by(news_heading=news_data).first()
         if news_obj:
@@ -26,7 +38,15 @@ def check_existing_news(news_data):
 
 
 def insert_data(category_obj, data):
-    """function for inserting news into the database"""
+    """function for inserting news into the database
+
+    Parameters
+    ----------
+    category_obj: object
+        category object is used to fetch category id from it
+    data: object
+        data contains the information which is then inserted into the database table
+    """
     with app.app_context():
         news = News(news_heading=data['heading'], news_info=data['content'],
                     news_date=data['date'],
@@ -39,6 +59,7 @@ def insert_data(category_obj, data):
 
 
 class PoliticsSpider(scrapy.Spider):
+    """class for scraping politics news and creating its spider"""
     name = "politics"
     start_urls = ['https://indianexpress.com/section/political-pulse/']
     page_number = 0
@@ -46,7 +67,13 @@ class PoliticsSpider(scrapy.Spider):
         category_obj = NewsCategory.query.filter_by(category="Politics").first()
 
     def parse(self, response):
-        """function for parsing data"""
+        """function for parsing data
+
+        Parameters
+        ----------
+        response: data
+            response is used with css to scraped data
+        """
 
         self.page_number += 1
         for news in response.css('div.articles'):
@@ -66,6 +93,8 @@ class PoliticsSpider(scrapy.Spider):
 
 
 class EntertainmentSpider(scrapy.Spider):
+    """class for scraping entertainment news and creating its spider"""
+
     name = "entertainment"
     start_urls = ['https://indianexpress.com/section/entertainment/']
     page_number = 0
@@ -73,7 +102,13 @@ class EntertainmentSpider(scrapy.Spider):
         category_obj = NewsCategory.query.filter_by(category="Entertainment").first()
 
     def parse(self, response):
-        """function for parsing data"""
+        """function for parsing data
+
+        Parameters
+        ----------
+        response: data
+            response is used with css to scraped data
+        """
 
         self.page_number += 1
         for news in response.css('div.articles'):
@@ -93,6 +128,8 @@ class EntertainmentSpider(scrapy.Spider):
 
 
 class SportsSpider(scrapy.Spider):
+    """class for scraping sports news and creating its spider"""
+
     name = "sports"
     start_urls = ['https://indianexpress.com/section/sports/']
     page_number = 0
@@ -100,7 +137,13 @@ class SportsSpider(scrapy.Spider):
         category_obj = NewsCategory.query.filter_by(category="Sports").first()
 
     def parse(self, response):
-        """function for parsing data"""
+        """function for parsing data
+
+        Parameters
+        ----------
+        response: data
+            response is used with css to scraped data
+        """
 
         self.page_number += 1
         for news in response.css('div.articles'):
@@ -120,6 +163,8 @@ class SportsSpider(scrapy.Spider):
 
 
 class EducationSpider(scrapy.Spider):
+    """class for scraping education news and creating its spider"""
+
     name = "education"
     start_urls = ['https://indianexpress.com/section/education/']
     page_number = 0
@@ -127,7 +172,13 @@ class EducationSpider(scrapy.Spider):
         category_obj = NewsCategory.query.filter_by(category="Education").first()
 
     def parse(self, response):
-        """function for parsing data"""
+        """function for parsing data
+
+        Parameters
+        ----------
+        response: data
+            response is used with css to scraped data
+        """
 
         self.page_number += 1
         for news in response.css('div.articles'):

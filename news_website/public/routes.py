@@ -12,25 +12,36 @@ from news_website.public.utils import get_news, get_news_by_object, get_news_for
 from dateutil.relativedelta import relativedelta
 
 public = Blueprint("public", __name__)
+
 stripe_keys = {
     'secret_key': os.environ['STRIPE_SECRET_KEY'],
     'publishable_key': os.environ['STRIPE_PUBLISHABLE_KEY']
 }
-
 stripe.api_key = stripe_keys['secret_key']
 
 
 class ShowNews(MethodView):
+    """class for showing scraped news"""
+
     def get(self, category):
+        """method for getting the news which is open to public"""
         news_dict_data, news_data = get_news(category.title())
         return render_template('show_public_news.html', news_dict_data=news_dict_data, news_data=news_data,
                                category=category)
 
 
 class Subscribe(MethodView):
+    """class for subscribing to become premium user"""
     decorators = [login_required]
 
     def get(self, user_id):
+        """method for getting the subscribe page to the user
+
+        Parameters
+        ----------
+        user_id: int
+            id of the current user
+        """
         if current_user.id == user_id:
             three_mon_rel = relativedelta(months=3)
 
@@ -56,6 +67,13 @@ class Payment(MethodView):
     decorators = [login_required]
 
     def get(self, user_id):
+        """method for getting the payment template for the user
+
+        Parameters
+        ----------
+        user_id: int
+            id of the current user
+        """
         if current_user.id == user_id:
 
             return render_template('payment.html', key=stripe_keys['publishable_key'])
@@ -68,8 +86,24 @@ class Checkout(MethodView):
     decorators = [login_required]
 
     def post(self, user_id):
+        """method for checkout using stripe payment
+
+        Parameters
+        ----------
+        user_id: int
+            id of the current user
+        """
         if current_user.id == user_id:
             amount = 199 * 100
+            card_payment = stripe.PaymentMethod.create(
+                type="card",
+                card={
+                    "number": 4242424242424242,
+                    "exp_month": 1,
+                    "exp_year": 2023,
+                    "cvc": 123,
+                },
+            )
 
             customer = stripe.Customer.create(
                 email=current_user.email,
@@ -79,6 +113,7 @@ class Checkout(MethodView):
             stripe.PaymentIntent.create(
                 customer=customer.id,
                 amount=amount,
+                payment_method=card_payment.id,
                 currency='inr',
                 description='No Nonsense News Subscription Charge'
             )
@@ -95,9 +130,12 @@ class Checkout(MethodView):
 
 
 class GetJournalistAllArticles(MethodView):
-    """class for getting all the articles posted by journalist which is approved by the admin which will be shown publicly"""
+    """class for getting all the articles posted by journalist which is approved by the admin which will be shown
+    publicly"""
 
     def get(self):
+        """method for getting all the journalist posted articles which are approved by the admin and will be open to
+        public"""
         form = CategoryFilterForm()
         page = request.args.get('page', 1, type=int)
         raw_data = News.query.filter_by(scraped_data=False, checked=True, is_approved=True).order_by(
@@ -108,6 +146,7 @@ class GetJournalistAllArticles(MethodView):
                                categories=NewsCategory.query.all(), form=form)
 
     def post(self):
+        """method for selecting the category for filtering articles"""
         form = CategoryFilterForm()
         category_id = request.form.get('category')
         return redirect(url_for('filtered_articles', category_id=category_id))
@@ -117,6 +156,13 @@ class GetJournalistArticles(MethodView):
     """class for getting specific journalist articles"""
 
     def get(self, journalist_id):
+        """method for getting the selected journalist articles
+
+        Parameters
+        ----------
+        journalist_id: int
+            id of the journalist which is selected
+        """
         page = request.args.get('page', 1, type=int)
         journalist_data = User.query.filter_by(id=journalist_id).first()
         journalist_news = JournalistNewsMapping.query.filter_by(journalist_id=journalist_id).paginate(page=page,
@@ -141,6 +187,13 @@ class FilteredArticles(MethodView):
     """class for getting filter news"""
 
     def get(self, category_id):
+        """method for getting filtered articles
+
+        Parameters
+        ----------
+        category_id: int
+            id of the category through which news will be filtered
+        """
         page = request.args.get('page', 1, type=int)
         raw_data = News.query.filter_by(checked=True, is_approved=True, news_category_id=category_id).order_by(
             News.news_date.desc()).paginate(page=page, per_page=5)
@@ -156,6 +209,14 @@ class NewsLetter(MethodView):
     decorators = [login_required]
 
     def get(self, user_id):
+        """method for getting newsletter which will be shown to premium user as a part of subscription feature
+
+        Parameters
+        ----------
+        user_id: int
+            id of the current user
+        """
+
         if user_id == current_user.id:
             carousel_dict = {"first-slide": get_latest_news("Politics"),
                              "first-slide-image": get_latest_news_image(get_latest_news("Politics").news_id),

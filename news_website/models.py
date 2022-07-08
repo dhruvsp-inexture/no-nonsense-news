@@ -7,6 +7,7 @@ from . import db, login_manager
 
 @login_manager.user_loader
 def load_user(user_id):
+    """function for loading the user"""
     return User.query.get(user_id)
 
 
@@ -31,7 +32,7 @@ class User(db.Model, UserMixin):
     phone = db.Column(db.String(20), unique=True, nullable=False)
     age = db.Column(db.String(10), nullable=False)
     address = db.Column(db.String(200), nullable=False)
-    password = db.Column(db.String(60), nullable=False)
+    password = db.Column(db.String, nullable=False)
     has_premium = db.Column(db.Boolean, default=False, nullable=False)
     user_type_id = db.Column(db.Integer, db.ForeignKey('user_type.user_type_id'))
     journalist_news = db.relationship('JournalistNewsMapping', backref='journalistnews', lazy=True)
@@ -39,14 +40,26 @@ class User(db.Model, UserMixin):
                                    lazy="joined")
 
     def get_reset_token(self, expires_sec=1800):
-        """function to get the reset token which will expire in 30 minutes"""
+        """function to get the reset token which will expire in 30 minutes
+
+        Parameters
+        ----------
+        expires_sec: int
+            time to expire the token in seconds
+        """
 
         serializer = Serializer(current_app.config['SECRET_KEY'], expires_sec)
         return serializer.dumps({'user_id': self.id}).decode('utf-8')
 
     @staticmethod
     def verify_reset_token(token):
-        """function for verifying the reset token"""
+        """function for verifying the reset token
+
+        Parameters
+        ----------
+        token: str
+            token which is generated while requesting reset password is loaded here
+        """
 
         serializer = Serializer(current_app.config['SECRET_KEY'])
         try:

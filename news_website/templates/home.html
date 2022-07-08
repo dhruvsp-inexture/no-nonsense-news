@@ -1,16 +1,18 @@
 {% extends 'layout.html' %}
 {% block content %}
 
-    <h3 style="margin-top:17px"><a class="home-link" href="{{ url_for('journalist_articles') }}">Latest news From Journalist<span
-            class="material-icons home-icons">
-        navigate_next
-        </span></a></h3>
-    <hr style=" border-top: 3px solid black ">
-    {% for journalist_news in latest_journalist_news %}
-        <h4> {{ journalist_news.news_heading }}</h4>
-        <p style="color:#444; margin-bottom: 5px">{{ journalist_news.news_info }}</p>
-        <hr style="margin:5px 0 ;">
-    {% endfor %}
+    {% if latest_journalist_news|length!=0 %}
+        <h3 style="margin-top:17px"><a class="home-link" href="{{ url_for('journalist_articles') }}">Latest news From Journalist<span
+                class="material-icons home-icons">
+            navigate_next
+            </span></a></h3>
+        <hr style=" border-top: 3px solid black ">
+        {% for journalist_news in latest_journalist_news %}
+            <h4> {{ journalist_news.news_heading }}</h4>
+            <p style="color:#444; margin-bottom: 5px">{{ journalist_news.news_info }}</p>
+            <hr style="margin:5px 0 ;">
+        {% endfor %}
+    {% endif %}
 
     <h3 class="mt-50"><a class="home-link" href="{{ url_for('show_news',category="Politics") }}">Politics<span class="material-icons home-icons">
         navigate_next

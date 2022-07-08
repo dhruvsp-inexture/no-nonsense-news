@@ -15,6 +15,14 @@ class CheckArticlesPage(MethodView):
     decorators = [login_required]
 
     def get(self, user_id):
+        """method for getting check articles template if the user is admin and user id is valid else it will abort
+
+        Parameters
+        ----------
+        user_id:int
+            id of the current user
+        """
+
         if user_id == current_user.id and current_user.usertype.type == "admin":
             news_data_dict = {}
             page = request.args.get('page', 1, type=int)
@@ -47,6 +55,17 @@ class ApproveArticle(MethodView):
     decorators = [login_required]
 
     def get(self, user_id, news_id):
+        """method for approving the articles and redirecting to check articles page only if the user id is valid and
+        user is admin else it will abort
+
+        Parameters
+        ----------
+        user_id: int
+            id of the current user
+        news_id: int
+            id of the news of which admin is approving the news
+
+        """
         if user_id == current_user.id and current_user.usertype.type == "admin":
 
             news_obj = News.query.filter_by(news_id=news_id).first()
@@ -63,6 +82,17 @@ class DeclineArticle(MethodView):
     decorators = [login_required]
 
     def get(self, user_id, news_id):
+        """method for declining the articles and redirecting to check articles page only if the user id is valid and
+           user is admin else it will abort
+
+           Parameters
+           ----------
+           user_id: int
+               id of the current user
+           news_id: int
+               id of the news of which admin is approving the news
+
+        """
         if user_id == current_user.id and current_user.usertype.type == "admin":
 
             news_obj = News.query.filter_by(news_id=news_id).first()
@@ -79,6 +109,14 @@ class ShowAllArticles(MethodView):
     decorators = [login_required]
 
     def get(self, user_id):
+        """method for getting all the articles if the user id is valid and is admin else it will abort
+
+        Parameters
+        ----------
+
+        user_id: int
+            id of the current user
+        """
         if user_id == current_user.id and current_user.usertype.type == "admin":
             page = request.args.get('page', 1, type=int)
             news_obj = News.query.filter_by(scraped_data=False).order_by(News.news_date).paginate(page=page,
@@ -90,6 +128,7 @@ class ShowAllArticles(MethodView):
             abort(403)
 
     def post(self, user_id):
+        """method for posting the data from the form for filtering the articles according to the selected option"""
         form = FilterForm()
         return redirect(url_for('show_filtered_articles', filter=form.filter_articles.data, user_id=current_user.id))
 
@@ -99,36 +138,58 @@ class ShowFilteredArticles(MethodView):
     decorators = [login_required]
 
     def get(self, user_id, filter):
-        page = request.args.get('page', 1, type=int)
+        """method for getting filtered articles if the user is valid else it will abort
 
-        if filter == "all_articles":
-            news_obj = News.query.filter_by(scraped_data=False).order_by(News.news_date).paginate(page=page,
-                                                                                                  per_page=5)
-        elif filter == "approved":
-            news_obj = News.query.filter_by(scraped_data=False, checked=True, is_approved=True).order_by(
-                News.news_date).paginate(page=page, per_page=5)
+        Parameters
+        ----------
+        user_id: int
+            id of the current user
+        filter: str
+            according to the filter the articles will be fetched
+        """
+        if user_id == current_user.id:
+            page = request.args.get('page', 1, type=int)
 
-        elif filter == "not_approved":
-            news_obj = News.query.filter_by(scraped_data=False, checked=True, is_approved=False).order_by(
-                News.news_date).paginate(page=page, per_page=5)
+            if filter == "all_articles":
+                news_obj = News.query.filter_by(scraped_data=False).order_by(News.news_date).paginate(page=page,
+                                                                                                      per_page=5)
+            elif filter == "approved":
+                news_obj = News.query.filter_by(scraped_data=False, checked=True, is_approved=True).order_by(
+                    News.news_date).paginate(page=page, per_page=5)
 
-        elif filter == "checked":
-            news_obj = News.query.filter_by(scraped_data=False, checked=True).order_by(
-                News.news_date).paginate(page=page, per_page=5)
+            elif filter == "not_approved":
+                news_obj = News.query.filter_by(scraped_data=False, checked=True, is_approved=False).order_by(
+                    News.news_date).paginate(page=page, per_page=5)
 
-        elif filter == "not_checked":
-            news_obj = News.query.filter_by(scraped_data=False, checked=False).order_by(
-                News.news_date).paginate(page=page, per_page=5)
+            elif filter == "checked":
+                news_obj = News.query.filter_by(scraped_data=False, checked=True).order_by(
+                    News.news_date).paginate(page=page, per_page=5)
 
-        news_data_dict = get_filtered_news(news_obj)
-        return render_template('show_filtered_articles.html', news_data_dict=news_data_dict, news_obj=news_obj,
-                               filter=filter)
+            elif filter == "not_checked":
+                news_obj = News.query.filter_by(scraped_data=False, checked=False).order_by(
+                    News.news_date).paginate(page=page, per_page=5)
+
+            news_data_dict = get_filtered_news(news_obj)
+            return render_template('show_filtered_articles.html', news_data_dict=news_data_dict, news_obj=news_obj,
+                                   filter=filter)
+        else:
+            abort(403)
 
 
 class ShowArticlesByJournalist(MethodView):
     """class for showing articles of corresponding journalist"""
 
     def get(self, user_id, journalist_id):
+        """method for getting the articles of the journalist if the user is valid else it will abort
+
+        Parameters
+        ----------
+        user_id: int
+            id of the current user
+        journalist_id: int
+            id of the journalist which is selected by the admin
+
+        """
         if user_id == current_user.id and current_user.usertype.type == "admin":
             page = request.args.get('page', 1, type=int)
 
@@ -156,6 +217,14 @@ class AddCategory(MethodView):
     """Class for adding new news category"""
 
     def get(self, user_id):
+        """method for getting the template for adding the category for the admin
+
+        Parameters
+        ----------
+        user_id: int
+            id of the current user
+
+        """
         if user_id == current_user.id and current_user.usertype.type == "admin":
             return render_template("add_category.html", categories=NewsCategory.query.all(), form=AddCategoryForm(),
                                    category_count=NewsCategory.query.count(),
@@ -164,6 +233,7 @@ class AddCategory(MethodView):
             abort(403)
 
     def post(self, user_id):
+        """method for adding the category by the admin"""
         form = AddCategoryForm()
         if form.validate_on_submit():
             add_category = NewsCategory(category=form.news_type.data.title())
@@ -180,6 +250,15 @@ class DeleteCategory(MethodView):
     """Class for deleting category"""
 
     def get(self, user_id, categoryId):
+        """method for deleting the category by the admin
+
+        Parameters
+        ----------
+        user_id: int
+            id of the current user
+        categoryId: int
+            id of the category that is to be deleted
+        """
         if user_id == current_user.id and current_user.usertype.type == "admin":
             category_obj = NewsCategory.query.filter_by(category_id=categoryId).first()
             db.session.delete(category_obj)
@@ -193,6 +272,13 @@ class ScrapData(MethodView):
     """class for scraping data"""
 
     def get(self, user_id):
+        """method for scraping data for admin and redirecting it to home page after data is scraped
+
+        Parameters
+        ----------
+        user_id: int
+            id of the current user
+        """
         if user_id == current_user.id and current_user.usertype.type == "admin":
             subprocess.check_output(['python', '-m',
                                      'news_website.scraping.indianexpress_politics_scraper.indianexpress_politics_scraper.spiders.politics_spider'])

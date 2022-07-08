@@ -1,10 +1,16 @@
-from flask import request, url_for
 from wtforms import ValidationError
 from news_website.models import NewsCategory, News, NewsImageMapping, JournalistNewsMapping
 
 
 def check_category(self, field):
-    """function for checking whether the newly added category already exists or not"""
+    """function for checking whether the newly added category already exists or not
+
+    Parameters
+    ----------
+
+    field: str
+        it is used to check if the category already exists in the table or not
+    """
     category_obj = NewsCategory.query.filter_by(category=field.data.title()).first()
     if category_obj:
         raise ValidationError('Category already exists please choose a different one.')
@@ -17,7 +23,13 @@ def get_distinct_news_category():
 
 
 def get_filtered_news(news_obj):
-    """function for getting filtered news"""
+    """function for getting filtered news
+
+    Parameters
+    ----------
+    news_obj: object
+        news object is used to store data in dictionary which is obtained from the query
+    """
 
     news_data_dict = {}
     for data in news_obj.items:

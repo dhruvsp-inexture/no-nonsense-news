@@ -18,6 +18,9 @@
     </form>
     <h2>All Articles posted by the Journalist</h2>
     <hr>
+    {% if news_dict|length==0 %}
+    <p>No articles</p>
+    {% endif %}
     {% for article in news_dict %}
         <h3>{{ news_dict[article]['heading'] }}</h3>
         <p>{{ news_dict[article]["content"] }}</p>

@@ -18,6 +18,13 @@ class PostArticlesPage(MethodView):
     decorators = [login_required]
 
     def get(self, user_id):
+        """method for getting post article template for the journalist else it will abort
+
+        Parameters
+        ----------
+        user_id: int
+            id of the current user
+        """
         if user_id == current_user.id and current_user.usertype.type == "journalist":
             return render_template('post_article.html', form=PostArticlesForm(), categories=NewsCategory.query.all(),
                                    form1=ArticlesImageUploadForm())
@@ -25,6 +32,13 @@ class PostArticlesPage(MethodView):
             abort(403)
 
     def post(self, user_id):
+        """method for posting articles by the journalist
+
+        Parameters
+        ----------
+        user_id: int
+            id of the current user
+        """
         form = PostArticlesForm()
         form1 = ArticlesImageUploadForm()
         categories = NewsCategory.query.all()
@@ -59,6 +73,13 @@ class ShowJournalistArticles(MethodView):
     decorators = [login_required]
 
     def get(self, user_id):
+        """method for getting articles of the current journalist
+
+        Parameters
+        ----------
+        user_id: int
+            id of the current user
+        """
         if user_id == current_user.id and current_user.usertype.type == "journalist":
             page = request.args.get('page', 1, type=int)
 
@@ -89,6 +110,15 @@ class UpdateArticlesPage(MethodView):
     decorators = [login_required]
 
     def get(self, user_id, news_id):
+        """method for getting the update articles template for the journalist
+
+        Parameters
+        ----------
+        user_id: int
+            id of the current user
+        news_id: int
+            id of the news which is to be updated by the journalist
+        """
         if user_id == current_user.id and current_user.usertype.type == "journalist":
             form = UpdateArticlesForm()
             news_data = News.query.filter_by(news_id=news_id).first()
@@ -109,6 +139,15 @@ class UpdateArticlesPage(MethodView):
             abort(403)
 
     def post(self, news_id, user_id):
+        """method for updating articles by the journalist
+
+        Parameters
+        ----------
+        user_id: int
+            id of the current user
+        news_id: int
+            id of the news to be updated
+        """
         form = UpdateArticlesForm()
         if form.validate_on_submit():
             news_data = News.query.filter_by(news_id=news_id).first()
@@ -138,6 +177,15 @@ class DeleteArticles(MethodView):
     decorators = [login_required]
 
     def get(self, user_id, news_id):
+        """method for deleting the articles
+
+        Parameters
+        ----------
+        user_id: int
+            id of the current user
+        news_id: int
+            id of the news to be updated
+        """
         if user_id == current_user.id and current_user.usertype.type == "journalist":
             journalist_news_object = JournalistNewsMapping.query.filter_by(news_id=news_id).first()
             news_image_object = NewsImageMapping.query.filter_by(news_id=news_id).first()
@@ -159,6 +207,7 @@ class DeleteArticlesImage(MethodView):
     decorators = [login_required]
 
     def post(self):
+        """method for deleting the image of the selected articles"""
         post_data = request.json
         news_id = post_data.get("news_id")
         journalist_obj = JournalistNewsMapping.query.filter_by(news_id=news_id).scalar()

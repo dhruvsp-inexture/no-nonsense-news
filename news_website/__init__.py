@@ -1,5 +1,5 @@
 from dotenv import load_dotenv
-from flask import Flask, current_app
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from news_website.config import Config
 from flask_login import LoginManager
@@ -17,6 +17,7 @@ mail = Mail()
 
 
 def create_app(config_class=Config):
+    """function for creating the app and configuring database, bcrypt, login_manager, mail through the app"""
     app = Flask(__name__)
     app.config.from_object(Config)
     db.init_app(app)
