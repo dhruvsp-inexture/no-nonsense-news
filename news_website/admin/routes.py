@@ -21,6 +21,11 @@ class CheckArticlesPage(MethodView):
         ----------
         user_id:int
             id of the current user
+
+        Returns
+        -------
+        template
+            check articles template to approve or decline articles
         """
 
         if user_id == current_user.id and current_user.usertype.type == "admin":
@@ -29,21 +34,23 @@ class CheckArticlesPage(MethodView):
             news_raw_data = News.query.filter_by(checked=False).order_by(News.news_date).paginate(page=page,
                                                                                                   per_page=5)
             for data in news_raw_data.items:
-                news_data_dict[data.news_id] = {}
+
+                data_news_id = data.news_id
+                news_data_dict[data_news_id] = dict()
                 author = JournalistNewsMapping.query.filter_by(news_id=data.news_id).first()
-                news_data_dict[data.news_id]["author_id"] = author.journalist_id
-                news_data_dict[data.news_id]["author_first_name"] = author.journalistnews.first_name
-                news_data_dict[data.news_id]["author_last_name"] = author.journalistnews.last_name
-                news_data_dict[data.news_id]["news_id"] = data.news_id
-                news_data_dict[data.news_id]["news_heading"] = data.news_heading
-                news_data_dict[data.news_id]["news_info"] = data.news_info
-                news_data_dict[data.news_id]["news_date"] = data.news_date.date()
-                news_data_dict[data.news_id]["news_category"] = data.categorytype.category
+                news_data_dict[data_news_id]["author_id"] = author.journalist_id
+                news_data_dict[data_news_id]["author_first_name"] = author.journalistnews.first_name
+                news_data_dict[data_news_id]["author_last_name"] = author.journalistnews.last_name
+                news_data_dict[data_news_id]["news_id"] = data.news_id
+                news_data_dict[data_news_id]["news_heading"] = data.news_heading
+                news_data_dict[data_news_id]["news_info"] = data.news_info
+                news_data_dict[data_news_id]["news_date"] = data.news_date.date()
+                news_data_dict[data_news_id]["news_category"] = data.categorytype.category
                 news_images = NewsImageMapping.query.filter_by(news_id=data.news_id).all()
-                news_data_dict[data.news_id]["images"] = []
+                news_data_dict[data_news_id]["images"] = []
                 if news_images:
                     for one_image in news_images:
-                        news_data_dict[data.news_id]["images"].append(one_image.image)
+                        news_data_dict[data_news_id]["images"].append(one_image.image)
 
             return render_template('check_articles.html', news_data_dict=news_data_dict, news_raw_data=news_raw_data)
         else:
@@ -65,6 +72,11 @@ class ApproveArticle(MethodView):
         news_id: int
             id of the news of which admin is approving the news
 
+        Returns
+        -------
+        url
+            redirecting url for check articles after admin approves articles
+
         """
         if user_id == current_user.id and current_user.usertype.type == "admin":
 
@@ -85,12 +97,17 @@ class DeclineArticle(MethodView):
         """method for declining the articles and redirecting to check articles page only if the user id is valid and
            user is admin else it will abort
 
-           Parameters
-           ----------
-           user_id: int
-               id of the current user
-           news_id: int
-               id of the news of which admin is approving the news
+       Parameters
+       ----------
+       user_id: int
+           id of the current user
+       news_id: int
+           id of the news of which admin is approving the news
+
+        Returns
+        -------
+        url
+            redirecting url for check articles after admin declines articles
 
         """
         if user_id == current_user.id and current_user.usertype.type == "admin":
@@ -113,9 +130,13 @@ class ShowAllArticles(MethodView):
 
         Parameters
         ----------
-
         user_id: int
             id of the current user
+
+        Returns
+        -------
+        template
+            show all articles template to fetch and show all the articles
         """
         if user_id == current_user.id and current_user.usertype.type == "admin":
             page = request.args.get('page', 1, type=int)
@@ -146,6 +167,11 @@ class ShowFilteredArticles(MethodView):
             id of the current user
         filter: str
             according to the filter the articles will be fetched
+
+        Returns
+        -------
+        template
+            show filtered articles template will be rendered according to the filter selected
         """
         if user_id == current_user.id:
             page = request.args.get('page', 1, type=int)
@@ -189,6 +215,11 @@ class ShowArticlesByJournalist(MethodView):
         journalist_id: int
             id of the journalist which is selected by the admin
 
+        Returns
+        -------
+        template
+            show journalist articles template will be rendered for the journalist which is selected by the admin
+
         """
         if user_id == current_user.id and current_user.usertype.type == "admin":
             page = request.args.get('page', 1, type=int)
@@ -224,6 +255,11 @@ class AddCategory(MethodView):
         user_id: int
             id of the current user
 
+        Returns
+        -------
+        template
+            add category template for adding categories by the admin
+
         """
         if user_id == current_user.id and current_user.usertype.type == "admin":
             return render_template("add_category.html", categories=NewsCategory.query.all(), form=AddCategoryForm(),
@@ -258,6 +294,11 @@ class DeleteCategory(MethodView):
             id of the current user
         categoryId: int
             id of the category that is to be deleted
+
+        Returns
+        -------
+        url
+            add category template will be redirected after admin delete some categories
         """
         if user_id == current_user.id and current_user.usertype.type == "admin":
             category_obj = NewsCategory.query.filter_by(category_id=categoryId).first()
@@ -278,6 +319,11 @@ class ScrapData(MethodView):
         ----------
         user_id: int
             id of the current user
+
+        Returns
+        -------
+        url
+            redirecting to home page after data has been scraped
         """
         if user_id == current_user.id and current_user.usertype.type == "admin":
             subprocess.check_output(['python', '-m',

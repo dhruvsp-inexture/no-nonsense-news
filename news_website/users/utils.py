@@ -29,9 +29,13 @@ def valid_number(self, field):
 
     Parameters
     ----------
-
     field: int
         it is used to validate the phone number of the user
+
+    Raises
+    ------
+    ValidationError
+        if entered number doesn't match with the regex expression
     """
     if not re.fullmatch('[6-9][0-9]{9}', field.data):
         raise ValidationError('Enter proper phone number starting from 6,7,8 or 9.')
@@ -42,9 +46,13 @@ def valid_password(self, field):
 
     Parameters
     ----------
-
     field: str
         it is used to validate the password of the user
+
+    Raises
+    ------
+    ValidationError
+        if entered password doesn't match with regex expression
 
     """
     reg = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!#%*?&]{6,18}$"
@@ -58,10 +66,13 @@ def validate_name(self, field):
 
     Parameters
     ----------
-
     field: str
         it is used to validate the first name and last name of the user
+
+    Raises
+    ------
+    ValidationError
+        if entered name doesn't match the given isalpha() condition
     """
     if not field.data.isalpha():
         raise ValidationError('Please Enter proper name only including alphabets.')
-

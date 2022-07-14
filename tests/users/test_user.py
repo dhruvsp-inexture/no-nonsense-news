@@ -1,3 +1,5 @@
+from flask_login import current_user
+
 from news_website import bcrypt
 from news_website.users.forms import LoginForm, RegistrationForm, PasswordResetRequestForm
 from tests.base import ConfigDB
@@ -91,3 +93,21 @@ class TestUser(ConfigDB, CreateDatabase):
         self.assert_message_flashed('Please, Enter details correctly', 'warning')
         self.assertEqual(res.status_code, 200)
 
+    # def test_that_something_works(self):
+    #     with self.client:
+    #         form = LoginForm()
+    #         form.email.data = "abc@gmail.com"
+    #         form.password.data = "abc"
+    #         response = self.client.post('/login', {email: 'James', password: '007'})
+    #
+    #         # success
+    #         self.assertEqual(current_user.username, 'James')
+
+    def test_get_profile_page_success(self):
+        self.test_login_success()
+        res = self.client.get('/profile/1', follow_redirects=False)
+        self.assert_template_used('profile.html')
+
+    def test_get_profile_page_fail(self):
+        res = self.client.get('/profile/1', follow_redirects=False)
+        self.assert_message_flashed('Please log in to access this page.', 'info')

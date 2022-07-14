@@ -9,16 +9,22 @@ def get_latest_news_for_home_page(category_of_news):
     ----------
     category_of_news: str
         category of news on which news object will be fetched and then stored accordingly in a dictionary
+
+    Returns
+    -------
+    dictionary
+        dictionary which contains the latest news stored from the object
     """
     news_category = NewsCategory.query.filter_by(category=category_of_news).first()
     news_data = News.query.filter_by(news_category_id=news_category.category_id, scraped_data=True).order_by(
         News.news_date.desc()).limit(3).all()
     news_dict_data = {}
     for news in news_data:
-        news_dict_data[news.news_id] = {}
-        news_dict_data[news.news_id]["data"] = news
-        images_data = NewsImageMapping.query.filter_by(news_id=news.news_id).first()
-        news_dict_data[news.news_id]["image"] = images_data.image
+        data_news_id = news.news_id
+        news_dict_data[data_news_id] = {}
+        news_dict_data[data_news_id]["data"] = news
+        images_data = NewsImageMapping.query.filter_by(news_id=data_news_id).first()
+        news_dict_data[data_news_id]["image"] = images_data.image
     return news_dict_data, news_data
 
 

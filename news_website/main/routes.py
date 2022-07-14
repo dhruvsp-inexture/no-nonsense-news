@@ -19,6 +19,11 @@ class HomePage(MethodView):
         if ProgrammingError, AttributeError, IndexError is found in try block because of data not found in the database
         then in except block all the data is inserted manually and also through scraping and again the home page is
         redirected
+
+        Returns
+        -------
+        template
+            renders home page
         """
 
         try:

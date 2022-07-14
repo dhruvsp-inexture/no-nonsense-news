@@ -17,13 +17,26 @@ class LoginPage(MethodView):
     """class for login page to get the login page and posting the data of the user for login"""
 
     def get(self):
-        """method for getting the login page for user"""
+        """method for getting the login page for user
+
+        Returns
+        -------
+        template
+            renders the login page
+        """
         if current_user.is_authenticated:
             return redirect(url_for('home_page'))
         return render_template('login.html', form=LoginForm())
 
     def post(self):
-        """method for posting the data for logging in"""
+        """method for posting the data for logging in
+
+        Returns
+        -------
+        url
+            redirects to the home page if login is successful
+
+        """
         form = LoginForm()
         if form.validate_on_submit():
             user = User.query.filter_by(email=form.email.data).first()
@@ -41,13 +54,25 @@ class RegistrationPage(MethodView):
     """class for getting registration page and posting the data of the user after registration"""
 
     def get(self):
-        """method for getting the registration page"""
+        """method for getting the registration page
+
+        Returns
+        -------
+        template
+            renders the registration page
+        """
         if current_user.is_authenticated:
             return redirect(url_for('home_page'))
         return render_template('registration.html', form=RegistrationForm())
 
     def post(self):
-        """method for posting data of the registration form and adding it to the database"""
+        """method for posting data of the registration form and adding it to the database
+
+        Returns
+        -------
+        url
+            redirects to the login page if registration is successful
+        """
         try:
             form = RegistrationForm()
             if form.validate_on_submit():
@@ -91,6 +116,11 @@ class ProfilePage(MethodView):
         ----------
         user_id: int
             id of the current user
+
+        Returns
+        -------
+        template
+            renders the current user profile page
         """
         if user_id == current_user.id:
             form = UpdateAccountForm()
@@ -107,7 +137,13 @@ class ProfilePage(MethodView):
             abort(403)
 
     def post(self, user_id):
-        """method for posting the data for updating user profile"""
+        """method for posting the data for updating user profile
+
+        Returns
+        -------
+        url
+            redirects to the current user profile page after user updates his/her profile
+        """
         form = UpdateAccountForm()
         if form.validate_on_submit():
             current_user.first_name = form.first_name.data
@@ -128,7 +164,13 @@ class Logout(MethodView):
     """class for user logout"""
 
     def get(self):
-        """method for user logout and then redirecting it to home page"""
+        """method for user logout and then redirecting it to home page
+
+        Returns
+        -------
+        url
+            redirects to the home page after user logs out
+        """
         logout_user()
         return redirect(url_for('home_page'))
 
@@ -138,13 +180,25 @@ class ResetPasswordRequest(MethodView):
     form"""
 
     def get(self):
-        """method for getting reset password request page for the user"""
+        """method for getting reset password request page for the user
+
+        Returns
+        -------
+        template
+            renders the reset password request page
+        """
         if current_user.is_authenticated:
             return redirect(url_for('home_page'))
         return render_template('reset_password_request.html', form=PasswordResetRequestForm())
 
     def post(self):
-        """method for checking if the email is valid """
+        """method for checking if the email is valid
+
+        Returns
+        -------
+        url
+            redirects to the login page after user makes a successful password reset request
+        """
         form = PasswordResetRequestForm()
         if form.validate_on_submit():
             user = User.query.filter_by(email=form.email.data).first()
@@ -159,13 +213,25 @@ class ResetToken(MethodView):
      password reset"""
 
     def get(self, token):
-        """method for getting reset token page for the user reset password request"""
+        """method for getting reset token page for the user reset password request
+
+        Returns
+        -------
+        template
+            renders the reset token page
+        """
         if current_user.is_authenticated:
             return redirect(url_for('home_page'))
         return render_template('reset_token.html', form=ResetPasswordForm())
 
     def post(self, token):
-        """method for verifying the token to reset the password and creating new password for the user"""
+        """method for verifying the token to reset the password and creating new password for the user
+
+        Returns
+        -------
+        url
+            redirects to the login page if user reset token is valid
+        """
         user = User.verify_reset_token(token)
         if user is None:
             flash('That is an invalid or expired token', 'warning')
@@ -186,12 +252,24 @@ class ChangePasswordPage(MethodView):
     decorators = [login_required]
 
     def get(self):
-        """method for getting the change password page for the user"""
+        """method for getting the change password page for the user
+
+        Returns
+        -------
+        template
+            renders the change password page where user can change his/her password
+        """
         form = changePassword()
         return render_template('change_password.html', form=form)
 
     def post(self):
-        """method for changing the password for the user based on the old password"""
+        """method for changing the password for the user based on the old password
+
+        Returns
+        -------
+        url
+            redirects to the profile page after user has successfully changed his/her password
+        """
         form = changePassword()
         if form.validate_on_submit():
 

@@ -9,6 +9,11 @@ def allowed_file(filename):
     ----------
     filename: str
         name of the file whose extensions are needed to be checked
+
+    Returns
+    -------
+    boolean
+        returns true if condition is satisfied
     """
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp'}
 
@@ -26,6 +31,11 @@ def get_random_alphanumeric_string(length):
     ----------
     length: int
         length of the prefix which is added to the name of the image file
+
+    Returns
+    -------
+    str
+        randomly generated string of given length
     """
     letters_and_digits = string.ascii_letters + string.digits
     result_str = ''.join((random.choice(letters_and_digits) for i in range(length)))

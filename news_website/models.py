@@ -46,6 +46,11 @@ class User(db.Model, UserMixin):
         ----------
         expires_sec: int
             time to expire the token in seconds
+
+        Returns
+        -------
+        string
+            contains the token by converting json to string
         """
 
         serializer = Serializer(current_app.config['SECRET_KEY'], expires_sec)
@@ -59,6 +64,10 @@ class User(db.Model, UserMixin):
         ----------
         token: str
             token which is generated while requesting reset password is loaded here
+        Returns
+        -------
+        object
+            contains the user object from given user_id
         """
 
         serializer = Serializer(current_app.config['SECRET_KEY'])

@@ -24,7 +24,13 @@ class ShowNews(MethodView):
     """class for showing scraped news"""
 
     def get(self, category):
-        """method for getting the news which is open to public"""
+        """method for getting the news which is open to public
+
+        Returns
+        -------
+        template
+            renders show public news which is open to all the users
+        """
         news_dict_data, news_data = get_news(category.title())
         return render_template('show_public_news.html', news_dict_data=news_dict_data, news_data=news_data,
                                category=category)
@@ -41,6 +47,11 @@ class Subscribe(MethodView):
         ----------
         user_id: int
             id of the current user
+
+        Returns
+        -------
+        template
+            renders subscribe template for the user while buying subscription
         """
         if current_user.id == user_id:
             three_mon_rel = relativedelta(months=3)
@@ -73,6 +84,10 @@ class Payment(MethodView):
         ----------
         user_id: int
             id of the current user
+
+        Returns
+        -------
+            returns payment template while buying the subscription
         """
         if current_user.id == user_id:
 
@@ -92,6 +107,11 @@ class Checkout(MethodView):
         ----------
         user_id: int
             id of the current user
+
+        Returns
+        -------
+        template
+            returns checkout template for user to check out after payment
         """
         if current_user.id == user_id:
             amount = 199 * 100
@@ -135,7 +155,13 @@ class GetJournalistAllArticles(MethodView):
 
     def get(self):
         """method for getting all the journalist posted articles which are approved by the admin and will be open to
-        public"""
+        public
+
+        Returns
+        -------
+        template
+            renders journalist articles to show all the articles posted by the journalist
+        """
         form = CategoryFilterForm()
         page = request.args.get('page', 1, type=int)
         raw_data = News.query.filter_by(scraped_data=False, checked=True, is_approved=True).order_by(
@@ -146,7 +172,13 @@ class GetJournalistAllArticles(MethodView):
                                categories=NewsCategory.query.all(), form=form)
 
     def post(self):
-        """method for selecting the category for filtering articles"""
+        """method for selecting the category for filtering articles
+
+        Returns
+        -------
+        url
+            redirects to the url for filtered articles page
+        """
         form = CategoryFilterForm()
         category_id = request.form.get('category')
         return redirect(url_for('filtered_articles', category_id=category_id))
@@ -162,6 +194,11 @@ class GetJournalistArticles(MethodView):
         ----------
         journalist_id: int
             id of the journalist which is selected
+
+        Returns
+        -------
+        template
+            renders the page of articles posted by the journalist
         """
         page = request.args.get('page', 1, type=int)
         journalist_data = User.query.filter_by(id=journalist_id).first()
@@ -171,11 +208,12 @@ class GetJournalistArticles(MethodView):
         for data in journalist_news.items:
             news_data = News.query.filter_by(news_id=data.news_id, checked=True, is_approved=True).first()
             if news_data:
-                news_dict[news_data.news_id] = {}
-                news_dict[news_data.news_id]["heading"] = news_data.news_heading
-                news_dict[news_data.news_id]["content"] = news_data.news_info
-                news_dict[news_data.news_id]["date"] = news_data.news_date
-                images_data = NewsImageMapping.query.filter_by(news_id=news_data.news_id).all()
+                news_data_news_id = news_data.news_id
+                news_dict[news_data_news_id] = {}
+                news_dict[news_data_news_id]["heading"] = news_data.news_heading
+                news_dict[news_data_news_id]["content"] = news_data.news_info
+                news_dict[news_data_news_id]["date"] = news_data.news_date
+                images_data = NewsImageMapping.query.filter_by(news_id=news_data_news_id).all()
                 news_dict[data.news_id]["image"] = []
                 for images in images_data:
                     news_dict[data.news_id]["image"].append(images.image)
@@ -193,6 +231,11 @@ class FilteredArticles(MethodView):
         ----------
         category_id: int
             id of the category through which news will be filtered
+
+        Returns
+        -------
+        template
+            renders filtered articles page according to filter selected by the user
         """
         page = request.args.get('page', 1, type=int)
         raw_data = News.query.filter_by(checked=True, is_approved=True, news_category_id=category_id).order_by(
@@ -215,6 +258,12 @@ class NewsLetter(MethodView):
         ----------
         user_id: int
             id of the current user
+
+        Returns
+        -------
+        template
+            renders the newsletter page for the premium user
+
         """
 
         if user_id == current_user.id:

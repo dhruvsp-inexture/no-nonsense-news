@@ -63,6 +63,11 @@ class RegistrationForm(FlaskForm):
         ----------
         phone: int
             phone number of the user passed through registration form
+
+        Raises
+        ------
+        ValidationError
+            if user is not none
         """
 
         user = User.query.filter_by(phone=phone.data).first()
@@ -76,6 +81,11 @@ class RegistrationForm(FlaskForm):
         ----------
         email: str
             email of the user passed through registration form
+
+        Raises
+        ------
+        ValidationError
+            if user is not none
         """
 
         user = User.query.filter_by(email=email.data).first()
@@ -151,6 +161,11 @@ class UpdateAccountForm(FlaskForm):
         ----------
         phone: int
             phone number of the user passed while updating the details
+
+        Raises
+        ------
+        ValidationError
+            if user is not none and entered phone number already exists in database except for the current user
         """
 
         user = User.query.filter_by(phone=phone.data).first()
@@ -165,6 +180,11 @@ class UpdateAccountForm(FlaskForm):
         ----------
         email: str
             email of the user passed while updating the details
+
+        Raises
+        ------
+        ValidationError
+            if user is not none and entered email already exists in database except for the current user
         """
 
         user = User.query.filter_by(email=email.data).first()
@@ -201,6 +221,11 @@ class PasswordResetRequestForm(FlaskForm):
         ----------
         email: str
             email passed through the reset password request form
+
+        Raises
+        ------
+        ValidationError
+            if user is none
 
         """
         user = User.query.filter_by(email=email.data).first()

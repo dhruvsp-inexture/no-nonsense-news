@@ -24,6 +24,11 @@ class PostArticlesPage(MethodView):
         ----------
         user_id: int
             id of the current user
+
+        Returns
+        -------
+        template
+            renders post articles template through which journalist posts the article.
         """
         if user_id == current_user.id and current_user.usertype.type == "journalist":
             return render_template('post_article.html', form=PostArticlesForm(), categories=NewsCategory.query.all(),
@@ -38,6 +43,12 @@ class PostArticlesPage(MethodView):
         ----------
         user_id: int
             id of the current user
+
+        Returns
+        -------
+        url
+            redirects to show journalist articles page
+
         """
         form = PostArticlesForm()
         form1 = ArticlesImageUploadForm()
@@ -79,6 +90,11 @@ class ShowJournalistArticles(MethodView):
         ----------
         user_id: int
             id of the current user
+
+        Returns
+        -------
+        template
+            shows the articles posted by the journalist
         """
         if user_id == current_user.id and current_user.usertype.type == "journalist":
             page = request.args.get('page', 1, type=int)
@@ -118,6 +134,11 @@ class UpdateArticlesPage(MethodView):
             id of the current user
         news_id: int
             id of the news which is to be updated by the journalist
+
+        Returns
+        -------
+        template
+            renders the update articles page through which journalist can update his/her articles.
         """
         if user_id == current_user.id and current_user.usertype.type == "journalist":
             form = UpdateArticlesForm()
@@ -147,6 +168,12 @@ class UpdateArticlesPage(MethodView):
             id of the current user
         news_id: int
             id of the news to be updated
+
+        Returns
+        -------
+        url
+            redirects to the same page if there is error while updating the articles and if successfully updated then
+            redirects to the show journalist articles page.
         """
         form = UpdateArticlesForm()
         if form.validate_on_submit():
@@ -185,6 +212,11 @@ class DeleteArticles(MethodView):
             id of the current user
         news_id: int
             id of the news to be updated
+
+        Returns
+        -------
+        json
+            contains the success is equal to true and article deleted message.
         """
         if user_id == current_user.id and current_user.usertype.type == "journalist":
             journalist_news_object = JournalistNewsMapping.query.filter_by(news_id=news_id).first()
@@ -207,7 +239,13 @@ class DeleteArticlesImage(MethodView):
     decorators = [login_required]
 
     def post(self):
-        """method for deleting the image of the selected articles"""
+        """method for deleting the image of the selected articles
+
+        Returns
+        -------
+        json
+            returns the json data which has value of success as True.
+        """
         post_data = request.json
         news_id = post_data.get("news_id")
         journalist_obj = JournalistNewsMapping.query.filter_by(news_id=news_id).scalar()
