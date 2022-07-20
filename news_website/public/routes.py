@@ -90,8 +90,42 @@ class Payment(MethodView):
             returns payment template while buying the subscription
         """
         if current_user.id == user_id:
-
-            return render_template('payment.html', key=stripe_keys['publishable_key'])
+            invoice = stripe.checkout.Session.create(
+                payment_method_types=['card'],
+                line_items=[{
+                    'price_data': {
+                        'currency': 'inr',
+                        'product_data': {
+                            'name': 'Subscription',
+                        },
+                        'unit_amount': int(199 * 100),
+                    },
+                    'quantity': 1,
+                }],
+                mode='payment',
+                success_url=os.environ.get('HOST') + f'/success/{current_user.id}',
+                cancel_url=os.environ.get('HOST') + '/cancel',
+            )
+            card_obj = stripe.PaymentMethod.create(
+                type="card",
+                card={
+                    "number": "4242424242424242",
+                    "exp_month": 7,
+                    "exp_year": 2023,
+                    "cvc": "123",
+                },
+            )
+            customer = stripe.Customer.create(
+                email=current_user.email, payment_method=card_obj.id
+            )
+            stripe.PaymentIntent.create(
+                customer=customer.id,
+                payment_method=card_obj.id,
+                currency="inr",
+                amount=int(199 * 100),
+                description='No Nonsense News Subscription Charge'
+            )
+            return render_template('payment.html', key=stripe_keys['publishable_key'], invoice_url=invoice["url"])
         else:
             abort(403)
 
@@ -114,29 +148,6 @@ class Checkout(MethodView):
             returns checkout template for user to check out after payment
         """
         if current_user.id == user_id:
-            amount = 199 * 100
-            card_payment = stripe.PaymentMethod.create(
-                type="card",
-                card={
-                    "number": 4242424242424242,
-                    "exp_month": 1,
-                    "exp_year": 2023,
-                    "cvc": 123,
-                },
-            )
-
-            customer = stripe.Customer.create(
-                email=current_user.email,
-                source=request.form['stripeToken']
-            )
-
-            stripe.PaymentIntent.create(
-                customer=customer.id,
-                amount=amount,
-                payment_method=card_payment.id,
-                currency='inr',
-                description='No Nonsense News Subscription Charge'
-            )
 
             current_user.has_premium = True
             subscribed_user = PremiumUserMapping(user_id=current_user.id, purchase_date=date.today())
@@ -144,9 +155,32 @@ class Checkout(MethodView):
             db.session.commit()
             flash('Congrats, now you are a premium user!!!', 'success')
 
-            return render_template('checkout.html', amount=amount)
+            return render_template('checkout.html', amount=199 * 100)
         else:
             abort(403)
+
+
+class PaymentSuccess(MethodView):
+
+    def get(self, user_id):
+        if current_user.id == user_id:
+
+            current_user.has_premium = True
+            subscribed_user = PremiumUserMapping(user_id=current_user.id, purchase_date=date.today())
+            db.session.add(subscribed_user)
+            db.session.commit()
+            flash('Congrats, now you are a premium user!!!', 'success')
+
+            return render_template('success.html', amount=199 * 100)
+        else:
+            abort(403)
+        # return render_template("success.html")
+
+
+class PaymentCancel(MethodView):
+
+    def get(self):
+        return redirect(url_for('subscribe', user_id=current_user.id))
 
 
 class GetJournalistAllArticles(MethodView):

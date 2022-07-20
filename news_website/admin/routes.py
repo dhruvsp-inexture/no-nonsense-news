@@ -75,7 +75,7 @@ class ApproveArticle(MethodView):
         Returns
         -------
         url
-            redirecting url for check articles after admin approves articles
+            redirecting to check articles page after admin approves articles
 
         """
         if user_id == current_user.id and current_user.usertype.type == "admin":

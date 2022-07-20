@@ -4,7 +4,7 @@ from news_website.admin.routes import CheckArticlesPage, ApproveArticle, Decline
     ShowArticlesByJournalist, AddCategory, DeleteCategory, ScrapData, ShowFilteredArticles
 from news_website.main.routes import HomePage
 from news_website.public.routes import ShowNews, Subscribe, GetJournalistAllArticles, \
-    GetJournalistArticles, FilteredArticles, NewsLetter, Payment, Checkout
+    GetJournalistArticles, FilteredArticles, NewsLetter, Payment, Checkout, PaymentSuccess, PaymentCancel
 from news_website.users.routes import LoginPage, RegistrationPage, ProfilePage, Logout, ResetPasswordRequest, \
     ResetToken, ChangePasswordPage
 from news_website.news.routes import PostArticlesPage, ShowJournalistArticles, UpdateArticlesPage, DeleteArticles, \
@@ -63,6 +63,8 @@ app.add_url_rule('/journalist_filtered_articles/<int:category_id>',
 app.add_url_rule('/newsletter/<int:user_id>', view_func=NewsLetter.as_view('newsletter'))
 app.add_url_rule('/buy_subscription/payment/<int:user_id>', view_func=Payment.as_view('payment'))
 app.add_url_rule('/buy_subscription/checkout/<int:user_id>', view_func=Checkout.as_view('checkout'))
+app.add_url_rule('/success/<int:user_id>', view_func=PaymentSuccess.as_view('success'))
+app.add_url_rule('/cancel', view_func=PaymentCancel.as_view('cancel'))
 
 if __name__ == '__main__':
     app.run(debug=True)
